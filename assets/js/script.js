@@ -14,19 +14,15 @@ function generateTaskId() {
 }
 
 // Todo: create a function to create a task card
-function createTaskCard(task) {
-
-  let taskTitle = document.getElementById('task-title').value 
-  let taskDueDate = document.getElementById('datepicker').value
-  let taskDescription = document.getElementById('task-description').value
-  let cardId = generateTaskId();
+function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
 
   const newtaskCard =  {
-    id: cardId,
-    title: taskTitle,
-    dueDate: taskDueDate,
-    description: taskDescription,
+    id: cardId.value,
+    title: taskTitle.value,
+    dueDate: taskDueDate.value,
+    description: taskDescription.value,
   } 
+
   let taskCards = JSON.parse(localStorage.getItem('taskCards')) || [];
   taskCards.push(newtaskCard)
   localStorage.setItem('taskCards', JSON.stringify(taskCards));
@@ -74,10 +70,10 @@ function createTaskCard(task) {
     cardDescription.appendTo(divBody)
     cardDueDate.appendTo(divBody)
     deleteTaskButton.appendTo(divBody);
-    
+
     }); 
    //Hide the modal
-   taskModal.modal('hide');
+  taskModal.modal('hide');
 }
 
 // Todo: create a function to render the task list and make cards draggable
@@ -87,8 +83,22 @@ function renderTaskList() {
 
 // Todo: create a function to handle adding a new task
 function handleAddTask(event){
-  createTask.on('click', createTaskCard);
+  event.preventDefault();
 
+  let cardId = generateTaskId();
+  let taskTitle = document.getElementById('task-title') 
+  let taskDueDate = document.getElementById('datepicker')
+  let taskDescription = document.getElementById('task-description')
+
+  createTaskCard(cardId, taskTitle, taskDueDate, taskDescription);
+
+  addTask.on('click', function(){
+    taskTitle.value = '';
+    taskTitle.value = '';
+    taskDueDate.value = '';
+    taskDescription.value = '';
+    console.log(taskTitle);
+  })
 }
 
 // Todo: create a function to handle deleting a task
@@ -104,6 +114,14 @@ function handleDrop(event, ui) {
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
 
-createTask.on('click', createTaskCard);
+
+
+  // Date a date picker
+  $( function() {
+    $( "#datepicker" ).datepicker();
+  } );
+
+  // Create Task
+  createTask.on('click',handleAddTask);
 
 });
