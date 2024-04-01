@@ -21,12 +21,16 @@ function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
     title: taskTitle.value,
     dueDate: taskDueDate.value,
     description: taskDescription.value,
-  } 
+  }
 
+  return newtaskCard
+}
+
+// Todo: create a function to render the task list and make cards draggable
+function renderTaskList(newtaskCard) {
   let taskCards = JSON.parse(localStorage.getItem('taskCards')) || [];
   taskCards.push(newtaskCard)
   localStorage.setItem('taskCards', JSON.stringify(taskCards));
-
   console.log(taskCards)
 
   //Go through each taskcard in the localstorage
@@ -71,26 +75,25 @@ function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
     cardDueDate.appendTo(divBody)
     deleteTaskButton.appendTo(divBody);
 
-    }); 
-   //Hide the modal
-  taskModal.modal('hide');
-}
-
-// Todo: create a function to render the task list and make cards draggable
-function renderTaskList() {
-
+    }
+  ); 
 }
 
 // Todo: create a function to handle adding a new task
 function handleAddTask(event){
+
   event.preventDefault();
 
   let cardId = generateTaskId();
   let taskTitle = document.getElementById('task-title') 
-  let taskDueDate = document.getElementById('datepicker')
+  let taskDueDate = document.getElementById('task-due-date')
   let taskDescription = document.getElementById('task-description')
 
-  createTaskCard(cardId, taskTitle, taskDueDate, taskDescription);
+  let newTaskCard = createTaskCard(cardId, taskTitle, taskDueDate, taskDescription);
+  
+  //Hide the modal
+  taskModal.modal('hide');
+
 
   addTask.on('click', function(){
     taskTitle.value = '';
@@ -99,6 +102,10 @@ function handleAddTask(event){
     taskDescription.value = '';
     console.log(taskTitle);
   })
+
+  console.log( "What do you see here" + newTaskCard );
+  newTaskCard
+  renderTaskList(newTaskCard);
 }
 
 // Todo: create a function to handle deleting a task
@@ -116,12 +123,17 @@ $(document).ready(function () {
 
 
 
+
+
   // Date a date picker
   $( function() {
-    $( "#datepicker" ).datepicker();
+    $( "#task-due-date" ).datepicker();
   } );
 
   // Create Task
-  createTask.on('click',handleAddTask);
+  createTask.on('click', handleAddTask)
 
+  // Render Task
+  
 });
+
