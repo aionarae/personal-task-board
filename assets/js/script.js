@@ -18,7 +18,7 @@ function generateTaskId() {
 function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
 
   let newtaskCard =  {
-    id: cardId.value,
+    id: cardId,
     title: taskTitle.value,
     dueDate: taskDueDate.value,
     description: taskDescription.value,
@@ -30,26 +30,26 @@ function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
 
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList() {
+  //Clear the exisitibng task cards
+  toDoCArds.empty();
 
   console.log(taskCards)
-  console.log(Array.isArray(taskCards));
 
   //Go through each taskcard in the localstorage
   taskCards.forEach(function(newTaskCard) {
-    var divCardColor = $('<div>');
+
+    var divCard = $('<div>');
     var todayFormatted = dayjs().format('MM/DD/YYYY')
 
-    // If date is before today, set card background to red
-    // If date is after today, set card background to white
-    // If date is today, set the card background to yellow
+    // Set background color based on dates
     if (dayjs(todayFormatted).isAfter(dayjs(newTaskCard.dueDate) )  ) {
-      divCardColor.addClass('card mb-4 text-white bg-danger')
+      divCard.addClass('card mb-4 text-white bg-danger')
     } 
     if (dayjs(todayFormatted).isSame(dayjs(newTaskCard.dueDate)) ) {
-      divCardColor.addClass('card text-dark bg-warning mb-4')
+      divCard.addClass('card text-dark bg-warning mb-4')
     } 
     if (dayjs(todayFormatted).isBefore(dayjs(newTaskCard.dueDate))) {
-      divCardColor.addClass('card text-dark bg-light mb-4')
+      divCard.addClass('card text-dark bg-light mb-4')
     }
 
     var cardTitleH3 = $('<h3>');
@@ -69,9 +69,9 @@ function renderTaskList() {
     deleteTaskButton.addClass('btn btn-danger').css('border-color', 'white');
     deleteTaskButton.text('Delete');
 
-    divCardColor.appendTo(toDoCArds)
-    cardTitleH3.appendTo(divCardColor)
-    divBody.appendTo(divCardColor)
+    divCard.appendTo(toDoCArds)
+    cardTitleH3.appendTo(divCard)
+    divBody.appendTo(divCard)
     cardDescription.appendTo(divBody)
     cardDueDate.appendTo(divBody)
     deleteTaskButton.appendTo(divBody);
@@ -84,7 +84,6 @@ function renderTaskList() {
 function handleAddTask(event){
 
   event.preventDefault();
-
   let cardId = generateTaskId();
   let taskTitle = document.getElementById('task-title') 
   let taskDueDate = document.getElementById('task-due-date')
@@ -94,7 +93,6 @@ function handleAddTask(event){
   
   //Hide the modal
   taskModal.modal('hide');
-
 
   addTask.on('click', function(){
     taskTitle.value = '';
