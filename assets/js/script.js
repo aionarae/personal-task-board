@@ -39,16 +39,17 @@ function renderTaskList() {
 
     var divCard = $('<div>');
     var todayFormatted = dayjs().format('MM/DD/YYYY')
+    divCard.css('max-width','75%')
 
     // Set background color based on dates
     if (dayjs(todayFormatted).isAfter(dayjs(newTaskCard.dueDate) )  ) {
-      divCard.addClass('task-card mb-4 text-white bg-danger')
+      divCard.addClass('card task-card text-white bg-danger mb-4')
     } 
     if (dayjs(todayFormatted).isSame(dayjs(newTaskCard.dueDate)) ) {
-      divCard.addClass('task-card text-dark bg-warning mb-4')
+      divCard.addClass('card task-card text-light bg-warning mb-4')
     } 
     if (dayjs(todayFormatted).isBefore(dayjs(newTaskCard.dueDate))) {
-      divCard.addClass('task-card text-dark bg-light mb-4')
+      divCard.addClass('card task-card text-dark bg-light mb-4')
     }
 
     var cardTitleH3 = $('<h3>');
@@ -86,7 +87,11 @@ function renderTaskList() {
 
   //Make cards draggable
   $( function() {
-    $( ".task-card" ).draggable();
+    $(".task-card ").draggable({
+      containment: ".swim-lanes", // Restrict dragging within swim lanes
+      snap: ".swim-lanes", // Snap to swim lanes
+      snapMode: "inner" // Snap inside swim lanes
+    });
   } );
 
 }
@@ -122,19 +127,14 @@ function handleDeleteTask(taskId){
   // Loop through taskList to find the task with the given ID
   for (let i = 0; i < taskList.length; i++) {
     if (taskList[i].id == taskId) {
-  
+       // Remove the task at 
       taskList.splice(i, 1);
-      
       // Update local storage
       localStorage.setItem('taskList',JSON.stringify(taskList));
-
       renderTaskList();
-
       break;
-
     }
   }
-
 }
 
 // Todo: create a function to handle dropping a task into a new status lane

@@ -16,3 +16,7 @@ body {
 .task-card:hover {
   cursor: grab;
 }
+
+h3{
+  font-size: 120%;
+}
