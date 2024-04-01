@@ -51,7 +51,6 @@ function renderTaskList() {
       divCard.addClass('task-card text-dark bg-light mb-4')
     }
 
-    divCard.attr('id', 'task-card');
     var cardTitleH3 = $('<h3>');
     cardTitleH3.addClass('card-header').text(newTaskCard.title);
 
@@ -66,7 +65,8 @@ function renderTaskList() {
 
     var deleteTaskButton = $('<a>');
     deleteTaskButton.attr('href', '#');
-    deleteTaskButton.addClass('btn btn-danger').css('border-color', 'white');
+    deleteTaskButton.attr('id', newTaskCard.id);
+    deleteTaskButton.addClass('delete-button btn btn-danger').css('border-color', 'white');
     deleteTaskButton.text('Delete');
 
     divCard.appendTo(toDoCArds)
@@ -75,6 +75,11 @@ function renderTaskList() {
     cardDescription.appendTo(divBody)
     cardDueDate.appendTo(divBody)
     deleteTaskButton.appendTo(divBody);
+
+    deleteTaskButton.on('click', function (){
+      let taskId = $(this).attr('id');
+      handleDeleteTask(taskId);
+    });
 
     }
   ); 
@@ -90,6 +95,7 @@ function renderTaskList() {
 function handleAddTask(event){
 
   event.preventDefault();
+
   let cardId = generateTaskId();
   let taskTitle = document.getElementById('task-title') 
   let taskDueDate = document.getElementById('task-due-date')
@@ -112,7 +118,22 @@ function handleAddTask(event){
 }
 
 // Todo: create a function to handle deleting a task
-function handleDeleteTask(event){
+function handleDeleteTask(taskId){
+  // Loop through taskList to find the task with the given ID
+  for (let i = 0; i < taskList.length; i++) {
+    if (taskList[i].id == taskId) {
+  
+      taskList.splice(i, 1);
+      
+      // Update local storage
+      localStorage.setItem('taskList',JSON.stringify(taskList));
+
+      renderTaskList();
+
+      break;
+
+    }
+  }
 
 }
 
@@ -129,10 +150,11 @@ $(document).ready(function () {
     $( "#task-due-date" ).datepicker();
   } );
 
-  // Create Task
+  // Create Task Listener
   createTask.on('click', handleAddTask)
 
   // Render Task
   renderTaskList();
+
 });
 
