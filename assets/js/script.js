@@ -1,7 +1,6 @@
 // Retrieve tasks and nextId from localStorage
-let taskList = JSON.parse(localStorage.getItem("tasks"));
 let nextId = JSON.parse(localStorage.getItem("nextId"));
-let taskCards = JSON.parse(localStorage.getItem('taskCards')) || [];
+let taskList = JSON.parse(localStorage.getItem('taskList')) || [];
 
 const addTask = $('#addTaskButton');
 const taskModal = $('#newTaskModal')
@@ -17,15 +16,15 @@ function generateTaskId() {
 // Todo: create a function to create a task card
 function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
 
-  let newtaskCard =  {
+  let newTask =  {
     id: cardId,
     title: taskTitle.value,
     dueDate: taskDueDate.value,
     description: taskDescription.value,
   }
 
-  taskCards.push(newtaskCard)
-  localStorage.setItem('taskCards', JSON.stringify(taskCards));
+  taskList.push(newTask)
+  localStorage.setItem('taskList', JSON.stringify(taskList));
 }
 
 // Todo: create a function to render the task list and make cards draggable
@@ -33,25 +32,26 @@ function renderTaskList() {
   //Clear the exisitibng task cards
   toDoCArds.empty();
 
-  console.log(taskCards)
+  console.log(taskList)
 
   //Go through each taskcard in the localstorage
-  taskCards.forEach(function(newTaskCard) {
+  taskList.forEach(function(newTaskCard) {
 
     var divCard = $('<div>');
     var todayFormatted = dayjs().format('MM/DD/YYYY')
 
     // Set background color based on dates
     if (dayjs(todayFormatted).isAfter(dayjs(newTaskCard.dueDate) )  ) {
-      divCard.addClass('card mb-4 text-white bg-danger')
+      divCard.addClass('task-card mb-4 text-white bg-danger')
     } 
     if (dayjs(todayFormatted).isSame(dayjs(newTaskCard.dueDate)) ) {
-      divCard.addClass('card text-dark bg-warning mb-4')
+      divCard.addClass('task-card text-dark bg-warning mb-4')
     } 
     if (dayjs(todayFormatted).isBefore(dayjs(newTaskCard.dueDate))) {
-      divCard.addClass('card text-dark bg-light mb-4')
+      divCard.addClass('task-card text-dark bg-light mb-4')
     }
 
+    divCard.attr('id', 'task-card');
     var cardTitleH3 = $('<h3>');
     cardTitleH3.addClass('card-header').text(newTaskCard.title);
 
@@ -78,6 +78,12 @@ function renderTaskList() {
 
     }
   ); 
+
+  //Make cards draggable
+  $( function() {
+    $( ".task-card" ).draggable();
+  } );
+
 }
 
 // Todo: create a function to handle adding a new task
