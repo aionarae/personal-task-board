@@ -5,7 +5,10 @@ let taskList = JSON.parse(localStorage.getItem('taskList')) || [];
 const addTask = $('#addTaskButton');
 const taskModal = $('#newTaskModal')
 const createTask = $ ('#createTask');
-const toDoCArds = $('#todo-cards')
+const toDoCArds = $('#todo-cards');
+const inProgressCards = $('#in-progress-cards');
+const doneCards = $('#done-cards')
+let droppableContainer = $(".swim-lanes");
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
@@ -44,12 +47,15 @@ function renderTaskList() {
     // Set background color based on dates
     if (dayjs(todayFormatted).isAfter(dayjs(newTaskCard.dueDate) )  ) {
       divCard.addClass('card task-card text-white bg-danger mb-4')
+      divCard.attr('id', newTaskCard.id)
     } 
     if (dayjs(todayFormatted).isSame(dayjs(newTaskCard.dueDate)) ) {
       divCard.addClass('card task-card text-light bg-warning mb-4')
+      divCard.attr('id', newTaskCard.id)
     } 
     if (dayjs(todayFormatted).isBefore(dayjs(newTaskCard.dueDate))) {
       divCard.addClass('card task-card text-dark bg-light mb-4')
+      divCard.attr('id', newTaskCard.id)
     }
 
     var cardTitleH3 = $('<h3>');
@@ -93,7 +99,6 @@ function renderTaskList() {
       snapMode: "inner" // Snap inside swim lanes
     });
   } );
-
 }
 
 // Todo: create a function to handle adding a new task
@@ -140,6 +145,24 @@ function handleDeleteTask(taskId){
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
 
+// Get the droppable container
+let card = ui.draggable;
+let parentId = card.parent().attr('id')
+let cardId = card.attr('id')
+
+if (parentId === "todo-cards") {
+  card.appendTo(inProgressCards)
+} else if (parentId === "in-progress-cards") {
+  card.appendTo(doneCards)
+} else if (parentId === "done") {
+  card.removeClass('bg-danger bg-warning').addClass('bg-light')
+}
+// For example, update the position or perform an action
+console.log("Dropped!");
+
+event.preventDefault();
+
+
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
@@ -156,5 +179,9 @@ $(document).ready(function () {
   // Render Task
   renderTaskList();
 
-});
+  // Drop Cards
+  $(".swim-lanes").droppable({
+    drop: handleDrop
+  });
 
+});
