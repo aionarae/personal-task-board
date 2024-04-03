@@ -154,39 +154,24 @@ function handleDeleteTask(taskId){
 function handleDrop(event, ui) {
 
 // Get the droppable container
-let card = ui.draggable;
-let parentId = card.parent().attr('id')
-let cardId = card.attr('id')
-let newStatus;
+  let card = ui.draggable;
+  let cardId = card.attr('id')
+  let newStatus = event.target.id
 
-if (parentId === 'todo-cards') {
-  card.appendTo(inProgressCards)
-  card.attr('data-status', 'in-progress');
-  newStatus = 'in-progress';
-} else if (parentId === 'in-progress-cards') {
-  card.appendTo(doneCards)
-  card.attr('data-status', 'done');
-  newStatus = 'done';
-  //this doesn't work
-  card.removeClass('bg-danger bg-warning').addClass('bg-light');
-} else if (parentId === 'done-cards') {
-  card.appendTo(inProgressCards)
-  card.attr('data-status', 'in-progress');
-  newStatus = 'in-progress';
-}
+  card.attr('data-status', newStatus);
 
  // Update the task's status in taskList
- for (let i = 0; i < taskList.length; i++) {
-  if (taskList[i].id == cardId) {
-    taskList[i].status = newStatus;
-    break;
+  for (let i = 0; i < taskList.length; i++) {
+    if (taskList[i].id == cardId) {
+      taskList[i].status = newStatus;
+      break;
+    }
   }
-}
 
 // Save the updated taskList back to localStorage
-localStorage.setItem('taskList', JSON.stringify(taskList));
+  localStorage.setItem('taskList', JSON.stringify(taskList));
 
-  // Re-render the task list to reflect the new status
+// Re-render the task list to reflect the new status
   renderTaskList();
 
 }
