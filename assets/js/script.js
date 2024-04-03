@@ -5,7 +5,7 @@ let taskList = JSON.parse(localStorage.getItem('taskList')) || [];
 const addTask = $('#addTaskButton');
 const taskModal = $('#newTaskModal')
 const createTask = $ ('#createTask');
-const toDoCArds = $('#todo-cards');
+const toDoCards = $('#todo-cards');
 const inProgressCards = $('#in-progress-cards');
 const doneCards = $('#done-cards')
 let droppableContainer = $(".swim-lanes");
@@ -24,6 +24,7 @@ function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
     title: taskTitle.value,
     dueDate: taskDueDate.value,
     description: taskDescription.value,
+    status: "to-do",
   }
 
   taskList.push(newTask)
@@ -32,10 +33,10 @@ function createTaskCard(cardId, taskTitle, taskDueDate, taskDescription) {
 
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList() {
-  //Clear the exisitibng task cards
-  toDoCArds.empty();
-
-  console.log(taskList)
+  //Clear the existing task cards
+  toDoCards.empty();
+  inProgressCards.empty();
+  doneCards.empty();
 
   //Go through each taskcard in the localstorage
   taskList.forEach(function(newTaskCard) {
@@ -44,7 +45,7 @@ function renderTaskList() {
     var todayFormatted = dayjs().format('MM/DD/YYYY')
     divCard.css('max-width','75%')
 
-    // Set background color based on dates
+    // Set background color and text based on dates
     if (dayjs(todayFormatted).isAfter(dayjs(newTaskCard.dueDate) )  ) {
       divCard.addClass('card task-card text-white bg-danger mb-4')
       divCard.attr('id', newTaskCard.id)
@@ -76,14 +77,24 @@ function renderTaskList() {
     deleteTaskButton.addClass('delete-button btn btn-danger').css('border-color', 'white');
     deleteTaskButton.text('Delete');
 
-    divCard.appendTo(toDoCArds)
+    if (newTaskCard.status === 'to-do') {
+      divCard.attr('data-status', 'to-do')
+      divCard.appendTo(toDoCards)
+    } else if (newTaskCard.status === 'in-progress') {
+      divCard.attr('data-status', 'in-progress')
+      divCard.appendTo(inProgressCards)
+    } else if (newTaskCard.status === 'done') {
+      divCard.attr('data-status', 'done')
+      divCard.appendTo(doneCards)
+    }
+
     cardTitleH3.appendTo(divCard)
     divBody.appendTo(divCard)
     cardDescription.appendTo(divBody)
     cardDueDate.appendTo(divBody)
     deleteTaskButton.appendTo(divBody);
 
-    deleteTaskButton.on('click', function (){
+    deleteTaskButton.on('click', function () {
       let taskId = $(this).attr('id');
       handleDeleteTask(taskId);
     });
@@ -92,14 +103,12 @@ function renderTaskList() {
   ); 
 
   //Make cards draggable
-  $( function() {
     $(".task-card ").draggable({
-      containment: ".swim-lanes", // Restrict dragging within swim lanes
-      snap: ".swim-lanes", // Snap to swim lanes
-      snapMode: "inner" // Snap inside swim lanes
+      containment: ".swim-lanes", 
+      snap: ".swim-lanes", 
+      snapMode: "inner" 
     });
-  } );
-}
+  }
 
 // Todo: create a function to handle adding a new task
 function handleAddTask(event){
@@ -121,7 +130,6 @@ function handleAddTask(event){
     taskTitle.value = '';
     taskDueDate.value = '';
     taskDescription.value = '';
-    console.log(taskTitle);
   })
 
   renderTaskList();
@@ -149,28 +157,46 @@ function handleDrop(event, ui) {
 let card = ui.draggable;
 let parentId = card.parent().attr('id')
 let cardId = card.attr('id')
+let newStatus;
 
-if (parentId === "todo-cards") {
+if (parentId === 'todo-cards') {
   card.appendTo(inProgressCards)
-} else if (parentId === "in-progress-cards") {
+  card.attr('data-status', 'in-progress');
+  newStatus = 'in-progress';
+} else if (parentId === 'in-progress-cards') {
   card.appendTo(doneCards)
-} else if (parentId === "done") {
-  card.removeClass('bg-danger bg-warning').addClass('bg-light')
+  card.attr('data-status', 'done');
+  newStatus = 'done';
+  //this doesn't work
+  card.removeClass('bg-danger bg-warning').addClass('bg-light');
+} else if (parentId === 'done-cards') {
+  card.appendTo(inProgressCards)
+  card.attr('data-status', 'in-progress');
+  newStatus = 'in-progress';
 }
-// For example, update the position or perform an action
-console.log("Dropped!");
 
-event.preventDefault();
+ // Update the task's status in taskList
+ for (let i = 0; i < taskList.length; i++) {
+  if (taskList[i].id == cardId) {
+    taskList[i].status = newStatus;
+    break;
+  }
+}
 
+// Save the updated taskList back to localStorage
+localStorage.setItem('taskList', JSON.stringify(taskList));
+
+  // Re-render the task list to reflect the new status
+  renderTaskList();
 
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
 
-  // Date a date picker
+  // Create a date picker
   $( function() {
-    $( "#task-due-date" ).datepicker();
+    $('#task-due-date').datepicker();
   } );
 
   // Create Task Listener
@@ -179,9 +205,10 @@ $(document).ready(function () {
   // Render Task
   renderTaskList();
 
-  // Drop Cards
-  $(".swim-lanes").droppable({
-    drop: handleDrop
+  //Drop Cards
+  $('.lane').droppable({
+    accept: '.task-card',
+    drop: handleDrop,
   });
 
 });
